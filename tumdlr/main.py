@@ -3,7 +3,7 @@ import os
 import click
 from configparser import ConfigParser
 
-plugin_folder = os.path.join(os.path.dirname(__file__), 'commands')
+from tumdlr import PLUGIN_DIR
 
 
 CONTEXT_SETTINGS = dict(auto_envvar_prefix='TUMDLR', max_content_width=100)
@@ -45,7 +45,7 @@ class CommandLine(click.MultiCommand):
             list
         """
         commands = []
-        for filename in os.listdir(plugin_folder):
+        for filename in os.listdir(PLUGIN_DIR):
             if filename.endswith('.py'):
                 commands.append(filename[:-3])
 
@@ -62,7 +62,7 @@ class CommandLine(click.MultiCommand):
         """
         ns = {}
 
-        filename = os.path.join(plugin_folder, name + '.py')
+        filename = os.path.join(PLUGIN_DIR, name + '.py')
         with open(filename) as f:
             code = compile(f.read(), filename, 'exec')
             eval(code, ns, ns)

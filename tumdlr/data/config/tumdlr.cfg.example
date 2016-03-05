@@ -9,6 +9,21 @@
 #SavePath = ~/tumblr
 
 ##
+## Download rate throttling
+## ---
+## Controls whether or not to throttle the rate of downloads. I have not seen instances where Tumblr will block you
+## for not doing this, but this is a common courtesy when scraping any website. It's recommended you leave this enabled.
+##
+## Enabled: Toggles download rate throttling
+## Min: The minimum amount of time to wait between requests in miliseconds
+## Max: The maximum amount of time to wait between requests in miliseconds
+##
+#[Throttling]
+#Enabled = True
+#Min = 100
+#Max = 500
+
+##
 ## Tumdlr download categorization
 ## ---
 ## Controls how downloaded content is saved and categorized
