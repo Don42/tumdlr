@@ -19,7 +19,6 @@ setup(
         'Development Status :: 1 - Planning',
         'License :: OSI Approved :: MIT License',
 
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
@@ -30,5 +29,5 @@ setup(
             'tumdlr = tumdlr.main:cli'
         ]
     },
-    install_requires=['click', 'yurl', 'lxml', 'requests', 'humanize', ]
+    install_requires=['click', 'yurl', 'lxml', 'requests', 'humanize', 'appdirs']
 )

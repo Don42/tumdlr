@@ -1,9 +1,9 @@
 import logging
 import os
-import click
-from configparser import ConfigParser
+import pkgutil
 
-from tumdlr import PLUGIN_DIR
+import click
+
 from tumdlr.config import load_config
 
 
@@ -35,13 +35,10 @@ class CommandLine(click.MultiCommand):
         Returns:
             list
         """
-        commands = []
-        for filename in os.listdir(PLUGIN_DIR):
-            if filename.endswith('.py') and not filename.startswith('__'):
-                commands.append(filename[:-3])
-
-        commands.sort()
-        return commands
+        commands_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'commands')
+        command_list = [name for __, name, ispkg in pkgutil.iter_modules([commands_path]) if not ispkg]
+        command_list.sort()
+        return command_list
 
     def get_command(self, ctx, name):
         """
@@ -51,14 +48,11 @@ class CommandLine(click.MultiCommand):
             ctx:        Context
             name(str):  Command name
         """
-        ns = {}
-
-        filename = os.path.join(PLUGIN_DIR, name + '.py')
-        with open(filename) as f:
-            code = compile(f.read(), filename, 'exec')
-            eval(code, ns, ns)
-
-        return ns['cli']
+        try:
+            mod = pkgutil.importlib.import_module('tumdlr.commands.{name}'.format(name=name))
+            return mod.cli
+        except (ImportError, AttributeError):
+            raise
 
 
 pass_context = click.make_pass_decorator(Context, ensure=True)
