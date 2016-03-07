@@ -19,17 +19,16 @@ setup(
         'Development Status :: 1 - Planning',
         'License :: OSI Approved :: MIT License',
 
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
     packages=find_packages(),
-    # package_data={'tumdlr': []},
-    # entry_points={
-    #    'console_scripts': [
-    #        'myscript = tumdlr$.mymod:myfunc'
-    #    ]
-    # },
+    include_package_data=True,
+    entry_points={
+        'console_scripts': [
+            'tumdlr = tumdlr.main:cli'
+        ]
+    },
     install_requires=['click', 'yurl', 'lxml', 'requests', 'humanize', ]
 )

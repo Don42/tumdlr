@@ -1,0 +1,1 @@
+recursive-include tumdlr/data *.cfg *.cfg.example

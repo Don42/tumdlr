@@ -1,10 +1,13 @@
+import os
+
 import click
 from tumdlr.main import pass_context, Context
 from tumdlr.config import write_user_config
 
 
+# noinspection PyIncorrectDocstring,PyUnusedLocal
 @click.command('setup', short_help='(Re-)run the setup and configuration for Tumdlr')
-@click.option('-p', '--path', help='Path to save Tumdlr downloads to', default='~/tumblr',
+@click.option('-p', '--path', help='Path to save Tumdlr downloads to', default=os.path.expanduser('~/tumblr'),
               prompt='Where would you like your downloads to be saved? ',
               type=click.Path(file_okay=False, writable=True, resolve_path=True))
 @click.option('--generic/--skip-generic', help='Toggles the downloading of generic posts', default=True,
@@ -19,15 +22,7 @@ from tumdlr.config import write_user_config
 @pass_context
 def cli(ctx, path, generic, images, videos, pause):
     """
-    Download posts from a Tumblr account
-
-    Args:
-        ctx(Context)
-        path(str)
-        generic(bool)
-        images(bool)
-        videos(bool)
-        pause(bool)
+    Sets Tumdlr up for use after a fresh installation or reconfigures the settings of an existing installation..
     """
     config = {
         'Tumdlr': {
@@ -40,6 +35,6 @@ def cli(ctx, path, generic, images, videos, pause):
 
     click.echo('Writing user configuration...')
     path = write_user_config('tumdlr', None, **config)
-    click.echo('Configuration written to %s', path)
+    click.echo('Configuration written to {}'.format(path))
 
     return path

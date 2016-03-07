@@ -4,6 +4,7 @@ import click
 from configparser import ConfigParser
 
 from tumdlr import PLUGIN_DIR
+from tumdlr.config import load_config
 
 
 CONTEXT_SETTINGS = dict(auto_envvar_prefix='TUMDLR', max_content_width=100)
@@ -15,21 +16,11 @@ class Context(object):
     """
     def __init__(self):
         self.cookiejar      = None
-        self.config         = ConfigParser()
+        self.config         = load_config('tumdlr')
         self.config_path    = None
         self.log            = None
         self.cache          = True
         self.database       = NotImplemented
-        self.basedir        = os.path.join(os.path.dirname(os.path.realpath(__file__)))
-
-        self.load_config(os.path.join(self.basedir, 'config', 'ipsv.conf'))
-
-    def load_config(self, path):
-        """
-        (Re-)load the configuration file
-        """
-        self.config_path = path
-        self.config.read(self.config_path)
 
 
 class CommandLine(click.MultiCommand):
@@ -46,7 +37,7 @@ class CommandLine(click.MultiCommand):
         """
         commands = []
         for filename in os.listdir(PLUGIN_DIR):
-            if filename.endswith('.py'):
+            if filename.endswith('.py') and not filename.startswith('__'):
                 commands.append(filename[:-3])
 
         commands.sort()
@@ -102,15 +93,6 @@ def cli(ctx, config, quiet, debug):
     ch.setLevel(log_level)
     ch.setFormatter(logging.Formatter('[%(levelname)s] %(name)s: %(message)s'))
     ctx.log.addHandler(ch)
-
-    # Load the configuration
-    if os.path.isfile(config):
-        ctx.config_path = config
-        ctx.log.debug('Loading configuration: %s', ctx.config_path)
-        ctx.load_config(config)
-    else:
-        ctx.config_path = os.path.join(ctx.basedir, 'config', 'ipsv.conf')
-        ctx.log.debug('Loading default configuration: %s', ctx.config_path)
 
 
 if __name__ == '__main__':

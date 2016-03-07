@@ -8,6 +8,15 @@ from yurl import URL
 
 
 def get(url):
+    """
+    Scrape archive links and associated metadata
+
+    Args:
+        url(str): The Tumblr profile URL
+
+    Returns:
+        list[BeautifulSoup]
+    """
     log = logging.getLogger('tumdlr.scrapers.archives')
 
     raw_url     = URL(url)

@@ -34,7 +34,7 @@ def download(url, filepath, progress_data=None, session=None, silent=False):
 
     # Get some information about the file we are downloading
     final_url   = URL(response.url)
-    filename    = filename_pattern.match(final_url).group(1)
+    filename    = filename_pattern.search(final_url.path).group(1)
     filesize    = naturalsize(response.headers.get('content-length', 0))
     filetype    = response.headers.get('content-type', 'Unknown')
     save_path   = os.path.join(filepath, filename)
@@ -55,6 +55,7 @@ def download(url, filepath, progress_data=None, session=None, silent=False):
             info_lines.append('{key} {value}'.format(key=click.style(key + ':', bold=True), value=value))
 
     # Print the static information now
+    click.echo()
     for line in info_lines:
         click.echo(line)
 
