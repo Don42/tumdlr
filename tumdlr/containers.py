@@ -126,6 +126,9 @@ class TumblrFile(metaclass=ABCMeta):
     """
     This is the base container class for all downloadable resources associated with Tumblr posts.
     """
+
+    FILE_TYPE = 'misc'
+
     def __init__(self, data, container):
         """
         Args:
@@ -136,7 +139,6 @@ class TumblrFile(metaclass=ABCMeta):
 
         self._data      = data
         self.container  = container
-        self.type       = 'misc'
         self.url        = URL(self._data['url'])
 
     def download(self, context, **kwargs):
@@ -170,8 +172,8 @@ class TumblrFile(metaclass=ABCMeta):
 
         # Are we categorizing by post type?
         if context.config['Categorization']['PostType']:
-            self.log.debug('Categorizing by type: photos')
-            basedir = basedir.joinpath('photos')
+            self.log.debug('Categorizing by type: %s', self.FILE_TYPE)
+            basedir = basedir.joinpath(self.FILE_TYPE)
 
         self.log.debug('Basedir constructed: %s', basedir)
 
@@ -180,6 +182,8 @@ class TumblrFile(metaclass=ABCMeta):
 
 class TumblrPhoto(TumblrFile):
 
+    FILE_TYPE = 'photos'
+
     def __init__(self, photo, photoset):
         """
         Args:
@@ -187,7 +191,6 @@ class TumblrPhoto(TumblrFile):
             photoset(TumblrPhotoSet): Parent container
         """
         super().__init__(photo, photoset)
-        self.type = 'photos'
 
         self.width   = self._data.get('width')
         self.height  = self._data.get('height')
