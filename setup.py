@@ -1,23 +1,41 @@
 from setuptools import setup, find_packages
 
 
-def readme():
-    with open('README.rst') as f:
-        return f.read()
+def read_md(file):
+    try:
+        # noinspection PyPackageRequirements,PyUnresolvedReferences
+        from pypandoc import convert
+
+        return convert(file, 'rst', 'md')
+    except ImportError:
+        import warnings
+        warnings.warn('pypandoc module not found, could not convert Markdown to RST')
+
+        with open(file, 'r') as md:
+            return md.read()
 
 
 setup(
     name='Tumblr Downloader',
     version='0.1.0',
     description='A Tumblr image and video scraping utility',
-    # long_description=readme(),
+    long_description=read_md('README.md'),
     author='makoto',
     author_email='makoto@makoto.io',
     url='',
     license='MIT',
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 2 - Pre-Alpha',
         'License :: OSI Approved :: MIT License',
+
+        'Environment :: Console',
+        'Intended Audience :: End Users/Desktop',
+        'Natural Language :: English',
+
+        'Topic :: Internet :: WWW/HTTP',
+        'Topic :: System :: Archiving',
+        'Topic :: System :: Archiving :: Mirroring',
+        'Topic :: Utilities',
 
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
