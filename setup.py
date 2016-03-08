@@ -16,13 +16,13 @@ def read_md(file):
 
 
 setup(
-    name='Tumblr Downloader',
+    name='tumdlr',
     version='0.1.0',
     description='A Tumblr image and video scraping utility',
     long_description=read_md('README.md'),
     author='makoto',
     author_email='makoto@makoto.io',
-    url='',
+    url='https://github.com/FujiMakoto/tumdlr/tree/master',
     license='MIT',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -40,6 +40,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
+    keywords='tumblr scraper downloader',
     packages=find_packages(),
     include_package_data=True,
     entry_points={

@@ -10,6 +10,7 @@ This application is currently in pre-alpha status and currently only supports ar
 
 ## Features
 Tumdlr currently supports archiving the following types of posts:
+
 * Photos (including linked photos)
 * Videos (support for external video embeds, such as YouTube, is provided via [youtube-dl](https://rg3.github.io/youtube-dl/))
 * Audio
