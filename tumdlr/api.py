@@ -4,7 +4,7 @@ from requests import Session, Response
 from yurl import URL
 
 from tumdlr import __version__
-from tumdlr.containers import TumblrPost, TumblrPhotoSet
+from tumdlr.containers import TumblrPost, TumblrPhotoSet, TumblrVideoPost
 
 
 class TumblrBlog:
@@ -87,6 +87,9 @@ class TumblrBlog:
         for post in posts:
             if post['type'] in ['photo', 'link']:
                 self._posts.append(TumblrPhotoSet(post, self))
+                continue
+            elif post['type'] == 'video':
+                self._posts.append(TumblrVideoPost(post, self))
                 continue
 
             self._posts.append(TumblrPost(post, self))

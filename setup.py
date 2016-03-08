@@ -40,7 +40,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
-    keywords='tumblr scraper downloader',
+    keywords='tumblr scraper downloader youtube-dl',
     packages=find_packages(),
     include_package_data=True,
     entry_points={
@@ -48,5 +48,5 @@ setup(
             'tumdlr = tumdlr.main:cli'
         ]
     },
-    install_requires=['click', 'yurl', 'lxml', 'requests', 'humanize', 'appdirs']
+    install_requires=['click', 'yurl', 'lxml', 'requests', 'humanize', 'appdirs', 'youtube_dl']
 )

@@ -1,20 +1,12 @@
 import logging
 import os
-from abc import ABCMeta, abstractmethod
 
 from pathlib import Path
 from yurl import URL
+from youtube_dl import YoutubeDL
+from hashlib import md5
 
 from tumdlr.downloader import sanitize_filename, download
-
-"""
-Post Containers
----
-Classes that extend the TumblrPost class are used for parsing and storing post metadata using API response data.
-
-They do not provide any methods for downloading posts directly. Instead, these classes should contain sub-container
-objects for their associated post types, which are described in more detail below.
-"""
 
 
 class TumblrPost:
@@ -97,14 +89,12 @@ class TumblrPhotoSet(TumblrPost):
         self.log = logging.getLogger('tumdlr.containers.post')
         super().__init__(post, blog)
 
-        self.title = None
-
     def _parse_post(self):
         """
         Parse all available photos using the best image sizes available
         """
         super()._parse_post()
-        self.title  = self._post.get('caption', self._post.get('title'))  # title else summary else id
+        self.title  = self._post.get('caption', self._post.get('title'))
 
         photos = self._post.get('photos', [])
         is_photoset = (len(photos) > 1)
@@ -118,16 +108,52 @@ class TumblrPhotoSet(TumblrPost):
         return "<TumblrPhotoSet title='{title}' id='{id}' photos='{count}'>"\
             .format(title=self.title.split("\n")[0].strip(), id=self.id, count=len(self.files))
 
-    def __str__(self):
-        return self.url.as_string()
+
+class TumblrVideoPost(TumblrPost):
+    """
+    Container class for Video post types
+    """
+    def __init__(self, post, blog):
+        """
+        Args:
+            post(dict): API response
+            blog(tumdlr.api.blog.TumblrBlog): Parent blog
+        """
+        self.log = logging.getLogger('tumdlr.containers.post')
+
+        self.title          = None
+        self.description    = None
+        self.duration       = None
+        self.format         = None
+
+        super().__init__(post, blog)
+
+    def _parse_post(self):
+        """
+        Parse all available photos using the best image sizes available
+        """
+        super()._parse_post()
+
+        video_info = YoutubeDL().extract_info(self.url.as_string(), False)
+
+        self.title = video_info.get('title')
+
+        self.description    = video_info.get('description')
+        self.duration       = int(video_info.get('duration', 0))
+        self.format         = video_info.get('format', 'Unknown')
+
+        self.files.append(TumblrVideo(video_info, self))
+
+    def __repr__(self):
+        return "<TumblrVideoPost id='{id}'>".format(id=self.id)
 
 
-class TumblrFile(metaclass=ABCMeta):
+class TumblrFile:
     """
     This is the base container class for all downloadable resources associated with Tumblr posts.
     """
 
-    FILE_TYPE = 'misc'
+    CATEGORY = 'misc'
 
     def __init__(self, data, container):
         """
@@ -139,7 +165,7 @@ class TumblrFile(metaclass=ABCMeta):
 
         self._data      = data
         self.container  = container
-        self.url        = URL(self._data['url'])
+        self.url        = URL(self._data.get('url', self._data.get('post_url')))
 
     def download(self, context, **kwargs):
         """
@@ -152,7 +178,6 @@ class TumblrFile(metaclass=ABCMeta):
         """
         download(self.url.as_string(), str(self.filepath(context, kwargs)), **kwargs)
 
-    @abstractmethod
     def filepath(self, context, request_data):
         """
         Args:
@@ -172,8 +197,8 @@ class TumblrFile(metaclass=ABCMeta):
 
         # Are we categorizing by post type?
         if context.config['Categorization']['PostType']:
-            self.log.debug('Categorizing by type: %s', self.FILE_TYPE)
-            basedir = basedir.joinpath(self.FILE_TYPE)
+            self.log.debug('Categorizing by type: %s', self.CATEGORY)
+            basedir = basedir.joinpath(self.CATEGORY)
 
         self.log.debug('Basedir constructed: %s', basedir)
 
@@ -182,7 +207,7 @@ class TumblrFile(metaclass=ABCMeta):
 
 class TumblrPhoto(TumblrFile):
 
-    FILE_TYPE = 'photos'
+    CATEGORY = 'photos'
 
     def __init__(self, photo, photoset):
         """
@@ -208,7 +233,7 @@ class TumblrPhoto(TumblrFile):
             Path
         """
         assert isinstance(self.container, TumblrPhotoSet)
-        filepath = super().filepath(context)
+        filepath = super().filepath(context, request_data)
 
         request_data['progress_data']['Caption'] = self.container.title
 
@@ -231,6 +256,58 @@ class TumblrPhoto(TumblrFile):
 
     def __repr__(self):
         return "<TumblrPhoto url='{url}' width='{w}' height='{h}'>".format(url=self.url, w=self.width, h=self.height)
+
+    def __str__(self):
+        return self.url.as_string()
+
+
+class TumblrVideo(TumblrFile):
+
+    CATEGORY = 'videos'
+
+    def __init__(self, video, vpost):
+        """
+        Args:
+            video(dict): Video API data
+            vpost(TumblrVideoPost): Parent container
+        """
+        super().__init__(video, vpost)
+
+    def filepath(self, context, request_data):
+        """
+        Get the full file path to save the video to
+
+        Args:
+            context(tumdlr.main.Context): CLI request context
+            request_data(Optional[dict]): Additional arguments to send with the download request
+
+        Returns:
+            Path
+        """
+        assert isinstance(self.container, TumblrVideoPost)
+        filepath = super().filepath(context, request_data)
+
+        minutes  = int(self.container.duration / 60)
+        seconds  = self.container.duration % 60
+        duration = '{} minutes {} seconds'.format(minutes, seconds) if minutes else '{} seconds'.format(seconds)
+
+        if self.container.title:
+            request_data['progress_data']['Title'] = self.container.title
+
+        request_data['progress_data']['Description'] = self.container.description
+        request_data['progress_data']['Duration'] = duration
+        request_data['progress_data']['Format'] = self.container.format
+
+        filepath = filepath.joinpath(sanitize_filename(
+            self.container.description or
+            md5(self.url.as_string().encode('utf-8')).hexdigest())
+        )
+
+        # Work out the file extension and return
+        return '{}.{}'.format(str(filepath), self._data.get('ext', 'mp4'))
+
+    def __repr__(self):
+        return "<TumblrVideo id='{i}'>".format(i=self.container.id)
 
     def __str__(self):
         return self.url.as_string()
