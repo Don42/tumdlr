@@ -34,10 +34,6 @@ def download(url, filename, progress_data=None, session=None, silent=False):
     filesize    = naturalsize(response.headers.get('content-length', 0))
     filetype    = response.headers.get('content-type', 'Unknown')
 
-    # Perform a few quick sanity checks
-    if not filename:
-        raise ValueError('Failed to parse a filename for the download request')
-
     # Format the information output
     info_lines = [
         click.style('Saving to: ', bold=True) + filename,
