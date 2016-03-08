@@ -55,9 +55,9 @@ def download(url, filename, progress_data=None, session=None, silent=False):
 
     # Process the download
     with open(filename, 'wb') as file:
-        length = int(response.headers.get('content-length'))
+        length = int(response.headers.get('content-length', 0))
 
-        with click.progressbar(response.iter_content(1024), length) as progress:
+        with click.progressbar(response.iter_content(1024), (length / 1024)) as progress:
             for chunk in progress:
                 if chunk:
                     file.write(chunk)
