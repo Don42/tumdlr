@@ -21,7 +21,7 @@ def load_config(name, container=None, default=True):
         ConfigParser
     """
     paths = []
-    filename = _config_path(name)
+    filename = _config_path(name, container)
 
     # Load the default configuration (if enabled)
     if default:
