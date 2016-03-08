@@ -21,10 +21,7 @@ def load_config(name, container=None, default=True):
         ConfigParser
     """
     paths = []
-
-    filename = _slugify(name) + '.cfg'
-    if container:
-        filename = os.path.join(_slugify(container), filename)
+    filename = _config_path(name)
 
     # Load the default configuration (if enabled)
     if default:
@@ -54,12 +51,42 @@ def write_user_config(name, container=None, **kwargs):
     """
     log = logging.getLogger('tumdlr.config')
 
-    filename = _slugify(name) + '.cfg'
-    if container:
-        filename = os.path.join(_slugify(container), filename)
+    filename = _config_path(name, container)
     log.debug('Rendering user configuration file: %s', filename)
 
+    # Make sure the user config directory exists
+    os.makedirs(USER_CONFIG_DIR, 0o755, True)
+    user_config_path = os.path.join(USER_CONFIG_DIR, filename)
+
     # Generate regular expressions for section tags and key=value assignments
+    sect_regexps = _compile_setting_comment_regexps(**kwargs)
+
+    # Read the example configuration
+    eg_cfg_path = os.path.join(DATA_DIR, 'config', filename + '.example')
+    with open(eg_cfg_path, 'r') as eg_cfg:
+        logging.debug('Example configuration opened: %s', eg_cfg.name)
+
+        # Save the configuration
+        with open(user_config_path, 'w') as user_cfg:
+            logging.debug('User configuration opened: %s', user_cfg.name)
+
+            for line in _parse_example_configuration(eg_cfg, sect_regexps):
+                user_cfg.write(line)
+
+    return user_config_path
+
+
+def _compile_setting_comment_regexps(**kwargs):
+    """
+    Compile regex substitutions for removing comments and updating setting values from example configuration files
+
+    Args:
+        **kwargs(dict[str, dict]): Setting key=values pairs
+
+    Returns:
+        dict[str, list[tuple[re.__Regex, str]]]
+    """
+    log = logging.getLogger('tumdlr.config')
     sect_regexps = {}
 
     for section, settings in kwargs.items():
@@ -82,58 +109,56 @@ def write_user_config(name, container=None, **kwargs):
 
         log.debug('Done generating regular expressions for section `%s`', section)
 
-    # Read the example configuration
-    eg_cfg_path = os.path.join(DATA_DIR, 'config', filename + '.example')
-    with open(eg_cfg_path, 'r') as file:
-        logging.debug('Reading sample configuration file: %s', eg_cfg_path)
-        config = file.readlines()
 
-    # Assign the appropriate setting values in the example configuration template
+def _parse_example_configuration(config, regexps):
+    """
+    Parse configuration lines against a set of comment regexps
+
+    Args:
+        config(_io.TextIOWrapper): Example configuration file to parse
+        regexps(dict[str, list[tuple[re.__Regex, str]]]):
+
+    Yields:
+        str: Parsed configuration lines
+    """
+    # What section are we currently in?
     in_section = None
 
-    for line_no, line in enumerate(config):
-        # Are we already in a section, and can we match a setting assignment?
+    for line in config:
         if in_section:
-            for key_regex, kv in sect_regexps[in_section]:
+            for key_regex, kv in regexps[in_section]:
                 # Skip the section regex
                 if kv is None:
                     continue
 
                 # Does the key match?
                 if key_regex.match(line):
-                    config[line_no] = "{key} = {value}\n".format(key=kv[0], value=kv[1])
+                    yield "{key} = {value}\n".format(key=kv[0], value=kv[1])
 
-        for section, sect_cfg in sect_regexps.items():
+        for section, sect_cfg in regexps.items():
             sect_regex = sect_cfg[0][0]  # type: re.__Regex
 
             if sect_regex.match(line):
                 in_section = section
-                config[line_no] = line.lstrip('#')
-                break
-
-    os.makedirs(USER_CONFIG_DIR, 0o755, True)
-    user_config_path = os.path.join(USER_CONFIG_DIR, filename)
-
-    # Save the configuration
-    with open(user_config_path, 'w') as file:
-        for line in config:
-            file.write(line)
-
-    return user_config_path
+                yield line.lstrip('#')
 
 
-def _slugify(string):
+def _config_path(name, container=None):
     """
-    Convert a string to a safe format for file/dir names
+    Convert a config name to a safe format for file/dir names
 
     Args:
-        string(str)
+        name(str): Configuration filename without the .cfg extension
+        container(Optional[str]): Configuration container
 
     Returns:
         str
     """
-    string = string.lower().strip()
-    string = re.sub('[^\w\s]', '', string)  # Strip non-word characters
-    string = re.sub('\s+', '_', string)  # Replace space characters with underscores
+    def slugify(string):
+        string = string.lower().strip()
+        string = re.sub('[^\w\s]', '', string)  # Strip non-word characters
+        return re.sub('\s+', '_', string)  # Replace space characters with underscores
 
-    return string
+    filename = slugify(name) + '.cfg'
+
+    return os.path.join(slugify(container), filename) if container else filename
