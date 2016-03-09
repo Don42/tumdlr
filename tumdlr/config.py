@@ -109,6 +109,8 @@ def _compile_setting_comment_regexps(**kwargs):
 
         log.debug('Done generating regular expressions for section `%s`', section)
 
+    return sect_regexps
+
 
 def _parse_example_configuration(config, regexps):
     """
@@ -124,23 +126,53 @@ def _parse_example_configuration(config, regexps):
     # What section are we currently in?
     in_section = None
 
-    for line in config:
-        if in_section:
-            for key_regex, kv in regexps[in_section]:
-                # Skip the section regex
-                if kv is None:
-                    continue
-
-                # Does the key match?
-                if key_regex.match(line):
-                    yield "{key} = {value}\n".format(key=kv[0], value=kv[1])
+    def iter_regexps(_line):
+        nonlocal regexps
+        nonlocal in_section
 
         for section, sect_cfg in regexps.items():
             sect_regex = sect_cfg[0][0]  # type: re.__Regex
 
             if sect_regex.match(line):
                 in_section = section
-                yield line.lstrip('#')
+                return line.lstrip('#')
+
+        raise RuntimeError('No section opening regexps matched')
+
+    def iter_section_regexps(_line):
+        nonlocal regexps
+        nonlocal in_section
+
+        for key_regex, kv in regexps[in_section]:
+            # Skip the section regex
+            if kv is None:
+                continue
+
+            # Does the key match?
+            if key_regex.match(_line):
+                return "{key} = {value}\n".format(key=kv[0], value=kv[1])
+
+        raise RuntimeError('No key=value regexps matched')
+
+    for line in config:
+        # Are we in a section yet?
+        if in_section:
+            try:
+                yield iter_section_regexps(line)
+            except RuntimeError:
+                # No key=value match? Are we venturing into a new section?
+                try:
+                    yield iter_regexps(line)
+                except RuntimeError:
+                    # Still nothing? Return the unprocessed line then
+                    yield line
+        # Not in a section yet? Are we venturing into our first one then?
+        else:
+            try:
+                yield iter_regexps(line)
+            except RuntimeError:
+                # Not yet? Return the unprocessed line then
+                yield line
 
 
 def _config_path(name, container=None):
