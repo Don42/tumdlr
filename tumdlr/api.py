@@ -86,14 +86,14 @@ class TumblrBlog:
         posts = self._api_response.json()['response']['posts']
 
         for post in posts:
-            if post['type'] in ['photo', 'link']:
-                self._posts.append(TumblrPhotoSet(post, self))
-                continue
-            elif post['type'] == 'video':
-                self._posts.append(TumblrVideoPost(post, self))
-                continue
-
             try:
+                if post['type'] in ['photo', 'link']:
+                    self._posts.append(TumblrPhotoSet(post, self))
+                    continue
+                elif post['type'] == 'video':
+                    self._posts.append(TumblrVideoPost(post, self))
+                    continue
+
                 self._posts.append(TumblrPost(post, self))
             except TumdlrParserError:
                 continue
