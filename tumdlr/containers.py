@@ -7,6 +7,7 @@ from youtube_dl import YoutubeDL
 from hashlib import md5
 
 from tumdlr.downloader import sanitize_filename, download
+from tumdlr.errors import TumblrDownloadError
 
 
 class TumblrPost:
@@ -176,7 +177,11 @@ class TumblrFile:
         Returns:
             str: Path to the saved file
         """
-        download(self.url.as_string(), str(self.filepath(context, kwargs)), **kwargs)
+        try:
+            download(self.url.as_string(), str(self.filepath(context, kwargs)), **kwargs)
+        except Exception as e:
+            self.log.warn('Post download failed: {}'.format(repr(self)), exc_info=e)
+            raise TumblrDownloadError(error_message=str(e), download_url=self.url.as_string())
 
     def filepath(self, context, request_data):
         """
