@@ -5,6 +5,7 @@ from yurl import URL
 
 from tumdlr import __version__
 from tumdlr.containers import TumblrPost, TumblrPhotoSet, TumblrVideoPost
+from tumdlr.errors import TumdlrParserError
 
 
 class TumblrBlog:
@@ -92,7 +93,10 @@ class TumblrBlog:
                 self._posts.append(TumblrVideoPost(post, self))
                 continue
 
-            self._posts.append(TumblrPost(post, self))
+            try:
+                self._posts.append(TumblrPost(post, self))
+            except TumdlrParserError:
+                continue
 
     def posts(self):
         """

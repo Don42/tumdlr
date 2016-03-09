@@ -4,7 +4,7 @@ import urllib
 import click
 from requests import Session
 
-from tumdlr.errors import TumblrDownloadError
+from tumdlr.errors import TumdlrDownloadError
 from tumdlr.main import pass_context
 from tumdlr.api import TumblrBlog
 from tumdlr.containers import TumblrPost
@@ -42,7 +42,7 @@ def cli(ctx, url, images, videos):
         for file in post.files:
             try:
                 file.download(ctx, session=session, progress_data=progress_data)
-            except TumblrDownloadError:
+            except TumdlrDownloadError:
                 click.echo('File download failed, skipping', err=True)
 
         progress += 1
