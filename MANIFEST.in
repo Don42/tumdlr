@@ -1,1 +1,1 @@
-recursive-include tumdlr/data *.cfg *.cfg.example
+recursive-include tumdlr/data *.cfg *.cfg.example *.rst
