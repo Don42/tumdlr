@@ -10,8 +10,6 @@ from tumdlr.config import write_user_config
 @click.option('-p', '--path', help='Path to save Tumdlr downloads to', default=os.path.expanduser('~/tumblr'),
               prompt='Where would you like your downloads to be saved? ',
               type=click.Path(file_okay=False, writable=True, resolve_path=True))
-@click.option('--generic/--skip-generic', help='Toggles the downloading of generic posts', default=True,
-              prompt='Do you want to save generic (non-image or video) posts?')
 @click.option('--images/--skip-images', help='Toggles the downloading of image posts', default=True,
               prompt='Do you want to save photo posts?')
 @click.option('--videos/--skip-videos', help='Toggles the downloading of video posts', default=True,
@@ -20,16 +18,18 @@ from tumdlr.config import write_user_config
               help='Toggles the brief pause between downloads to prevent traffic flooding, which may be detected as '
                    'abuse by Tumblr and result in blocked connections')
 @pass_context
-def cli(ctx, path, generic, images, videos, pause):
+def cli(ctx, path, images, videos, pause):
     """
     Sets Tumdlr up for use after a fresh installation or reconfigures the settings of an existing installation..
     """
     config = {
         'Tumdlr': {
             'SavePath': path,
-            'SaveGeneric': generic,
             'SavePhotos': images,
             'SaveVideos': videos
+        },
+        'Development': {
+            'AgreedToTerms': True
         }
     }
 
