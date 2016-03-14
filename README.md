@@ -6,17 +6,24 @@ Tumdlr is a command line application for generating and maintaining Tumblr blog 
 
 It works almost entirely using Tumblr's own [API](https://www.tumblr.com/docs/en/api/v2) instead of relying on web scraping methods, offering vastly superior performance without the risk of breaking with future site updates.
 
-This application is currently in pre-alpha status and currently only supports archiving photo posts with limited configuration options available.
+This application is currently in pre-alpha status.
 
 ## Features
 Tumdlr currently supports archiving the following types of posts:
 
 * Photos (including linked photos)
-* Videos (support for external video embeds, such as YouTube, is provided via [youtube-dl](https://rg3.github.io/youtube-dl/))
-* Audio
-* Text / regular posts (in both plain text and HTML)
+* Videos (including support for most external video embeds, such as YouTube) - Powered via [youtube-dl](https://rg3.github.io/youtube-dl/)
+* ~~Audio~~ (Coming soon)
+* ~~Text / regular posts (in both plain text and HTML)~~ (Coming soon)
 
-In addition to, Tumdlr is able to track and update previously archiving blogs without needing to re-download existing posts.
+## Installation
+Tumdlr can be easily installed with pip:
+```
+$ pip install tumdlr
+```
+
+## Usage
+Online documentation is not available during alpha development. Available commands can be found by running the ```tumdlr --help``` command.
 
 ## License
 
