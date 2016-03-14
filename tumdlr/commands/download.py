@@ -1,5 +1,6 @@
 import logging
 import urllib
+from collections import OrderedDict
 
 import click
 from requests import Session
@@ -29,12 +30,12 @@ def cli(ctx, url, images, videos):
 
     for post in tumblr.posts():  # type: TumblrPost
         # Generic data
-        progress_data = {
-            'Progress': '{cur} / {total} posts processed'.format(cur=progress, total=tumblr.post_count),
-            'Type': post.type.title(),
-            'Post Date': post.post_date,
-            'Tags': post.tags
-        }
+        progress_data = OrderedDict([
+            ('Progress', '{cur} / {total} posts processed'.format(cur=progress, total=tumblr.post_count)),
+            ('Type', post.type.title()),
+            ('Post Date', post.post_date),
+            ('Tags', post.tags)
+        ])
 
         session = Session()
         session.headers.update({'referer': urllib.parse.quote(post.url.as_string())})
