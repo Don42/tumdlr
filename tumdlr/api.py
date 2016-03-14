@@ -10,23 +10,28 @@ from tumdlr.errors import TumdlrParserError
 
 class TumblrBlog:
 
-    def __init__(self, url, session=None):
+    def __init__(self, url, session=None, **kwargs):
         """
         Tumblr blog
 
         Args:
             url(URL|str): Tumblr profile URL
             session(Optional[Session]): An optional custom Requests session
+
+        Keyword Args:
+            api_key(str): Tumblr API key
         """
         self._url = url if isinstance(url, URL) else URL(url)
         self._api_url = URL(scheme='https', host='api.tumblr.com', path='/v2/')
         self._api_response = None  # type: Response
+        self._api_key = kwargs.get('api_key', 'fuiKNFp9vQFvjLNvx4sUwti4Yb5yGutBN4Xh10LXZhhRKjWlV4')
+        self._uagent = kwargs.get('user_agent', 'tumdlr/{version}')
 
         if not session:
             session = Session()
             session.headers.update({
                 'Referer': urllib.parse.quote(self._url.as_string()),
-                'User-Agent': 'tumdlr/{v}'.format(v=__version__)
+                'User-Agent': self._uagent.format(version=__version__)
             })
 
         self.session = session
@@ -53,11 +58,31 @@ class TumblrBlog:
         Execute an API query
 
         Args:
-            query(Optional[str]): Extra query parameters
+            query(Optional[dict]): Extra query parameters
             parse(Optional[bool]): Parse the API response immediately
         """
+        # Parse extra query parameters
+        query_extra = []
+
+        if query:
+            for key, value in query.items():
+                query_extra.append(
+                    '{key}={value}'.format(
+                        key=urllib.parse.quote(key),
+                        value=urllib.parse.quote(value)
+                    )
+                )
+
+        # Only prepend an ampersand if we have extra attributes, otherwise default to an empty string
+        if query_extra:
+            query_extra = '&' + '&'.join(query_extra)
+        else:
+            query_extra = ''
+
         endpoint = self._api_url.replace(
-            query='api_key=fuiKNFp9vQFvjLNvx4sUwti4Yb5yGutBN4Xh10LXZhhRKjWlV4&filter=text&offset={}'.format(self.offset)
+            query='api_key={api_key}&filter=text&offset={offset}{extra}'.format(
+                api_key=self._api_key, offset=self.offset, extra=query_extra
+            )
         )
 
         response = self.session.get(endpoint.as_string())  # type: Response
