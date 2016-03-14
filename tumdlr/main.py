@@ -6,8 +6,7 @@ from subprocess import call
 
 import click
 
-from tumdlr.config import load_config
-
+from tumdlr.config import load_config, write_user_config
 
 CONTEXT_SETTINGS = dict(auto_envvar_prefix='TUMDLR', max_content_width=100)
 
@@ -106,8 +105,20 @@ def first_run(ctx):
     else:
         call(['less', terms_path])
 
-    # Run the setup command
-    ctx.invoke('setup')
+    # Run the configuration setup
+    save_path = click.prompt('Where should Tumblr downloads be saved to?', os.path.expanduser('~/tumblr'))
+
+    config = {
+        'Tumdlr': {
+            'SavePath': save_path,
+        },
+        'Development': {
+            'AgreedToTerms': True
+        }
+    }
+
+    path = write_user_config('tumdlr', None, **config)
+    click.echo('Configuration written to {}'.format(path))
 
 
 if __name__ == '__main__':

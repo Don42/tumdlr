@@ -20,7 +20,7 @@ from tumdlr.config import write_user_config
 @pass_context
 def cli(ctx, path, images, videos, pause):
     """
-    Sets Tumdlr up for use after a fresh installation or reconfigures the settings of an existing installation..
+    Sets Tumdlr up for use after a fresh installation or reconfigures the settings of an existing installation.
     """
     config = {
         'Tumdlr': {
