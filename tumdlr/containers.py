@@ -1,10 +1,10 @@
 import logging
 import os
-
-from pathlib import Path
-from yurl import URL
-from youtube_dl import YoutubeDL
 from hashlib import md5
+from pathlib import Path
+
+from youtube_dl import YoutubeDL
+from yurl import URL
 
 from tumdlr.downloader import sanitize_filename, download
 from tumdlr.errors import TumdlrDownloadError, TumdlrParserError

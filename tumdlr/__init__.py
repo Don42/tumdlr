@@ -7,7 +7,7 @@ import appdirs
 __author__      = "FujiMakoto"
 __copyright__   = "Copyright 2016, FujiMakoto"
 __license__     = "MIT"
-__version__     = "0.1.0"
+__version__     = "0.2.0"
 __maintainer__  = "FujiMakoto"
 __email__       = "makoto@makoto.io"
 __status__      = "Prototype"

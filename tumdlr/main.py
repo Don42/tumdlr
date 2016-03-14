@@ -1,7 +1,6 @@
 import logging
 import os
 import pkgutil
-
 from subprocess import call
 
 import click
@@ -118,6 +117,7 @@ def first_run(ctx):
     }
 
     path = write_user_config('tumdlr', None, **config)
+    ctx.config = load_config('tumdlr')
     click.echo('Configuration written to {}'.format(path))
 
 

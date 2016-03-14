@@ -1,6 +1,6 @@
 import urllib
 
-from requests import Session, Response
+from requests import Session
 from yurl import URL
 
 from tumdlr import __version__
@@ -20,6 +20,7 @@ class TumblrBlog:
 
         Keyword Args:
             api_key(str): Tumblr API key
+            uagent(str): Custom User-Agent header
         """
         self._url = url if isinstance(url, URL) else URL(url)
         self._api_url = URL(scheme='https', host='api.tumblr.com', path='/v2/')

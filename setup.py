@@ -17,7 +17,7 @@ def read_md(file):
 
 setup(
     name='tumdlr',
-    version='0.1.0',
+    version='0.2.0',
     description='A Tumblr image and video scraping utility',
     long_description=read_md('README.md'),
     author='makoto',

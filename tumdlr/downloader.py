@@ -1,11 +1,11 @@
 import html
 import os
 import re
+import unicodedata
 
 import click
-import unicodedata
-from requests import Session, Response
 from humanize import naturalsize
+from requests import Session
 
 
 def download(url, filename, progress_data=None, session=None, silent=False):

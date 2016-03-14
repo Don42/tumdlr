@@ -5,10 +5,9 @@ from collections import OrderedDict
 import click
 from requests import Session
 
+from tumdlr.api import TumblrBlog
 from tumdlr.errors import TumdlrDownloadError
 from tumdlr.main import pass_context
-from tumdlr.api import TumblrBlog
-from tumdlr.containers import TumblrPost
 
 
 # noinspection PyIncorrectDocstring,PyUnusedLocal
