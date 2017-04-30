@@ -176,7 +176,7 @@ class TumblrFile:
     def download(self, context, **kwargs):
         """
         Args:
-            context(tumdlr.main.Context): CLI request context
+            context(tumdlr.__main__.Context): CLI request context
             kwargs(dict): Additional arguments to send with the download request
 
         Returns:
@@ -191,7 +191,7 @@ class TumblrFile:
     def filepath(self, context, request_data):
         """
         Args:
-            context(tumdlr.main.Context): CLI request context
+            context(tumdlr.__main__.Context): CLI request context
             request_data(Optional[dict]): Additional arguments to send with the download request
 
         Returns:
@@ -236,7 +236,7 @@ class TumblrPhoto(TumblrFile):
         Get the full file path to save the downloaded file to
 
         Args:
-            context(tumdlr.main.Context): CLI request context
+            context(tumdlr.__main__.Context): CLI request context
             request_data(Optional[dict]): Additional arguments to send with the download request
 
         Returns:
@@ -288,7 +288,7 @@ class TumblrVideo(TumblrFile):
         Get the full file path to save the video to
 
         Args:
-            context(tumdlr.main.Context): CLI request context
+            context(tumdlr.__main__.Context): CLI request context
             request_data(Optional[dict]): Additional arguments to send with the download request
 
         Returns:

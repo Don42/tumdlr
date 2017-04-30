@@ -3,7 +3,7 @@ import os
 import click
 
 from tumdlr.config import write_user_config
-from tumdlr.main import pass_context
+from tumdlr.__main__ import pass_context
 
 
 # noinspection PyIncorrectDocstring,PyUnusedLocal

@@ -7,7 +7,7 @@ from requests import Session
 
 from tumdlr.api import TumblrBlog
 from tumdlr.errors import TumdlrDownloadError
-from tumdlr.main import pass_context
+from tumdlr.__main__ import pass_context
 
 
 # noinspection PyIncorrectDocstring,PyUnusedLocal
