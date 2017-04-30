@@ -106,7 +106,7 @@ class TumblrPhotoSet(TumblrPost):
         is_photoset = (len(photos) > 1)
 
         for page_no, photo in enumerate(photos, 1):
-            best_size = photo.get('original_size') or max(photo['alt_sizes'], key='width')
+            best_size = photo.get('original_size') or max(photo['alt_sizes'], key=lambda x: x.width)
             best_size['page_no'] = page_no if is_photoset else False
             self.files.append(TumblrPhoto(best_size, self))
 
