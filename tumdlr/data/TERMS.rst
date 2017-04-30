@@ -5,7 +5,7 @@ Welcome to the pre-alpha release of Tumdlr! Please use this application responsi
 
 Please note that as this application is currently in pre-alpha status. Some functionality may be limited and bugs should be expected. *Use at your own risk*.
 
-Destructive behavior is always a possibility with alpha software. Please do rely on this application for anything critical. While not likely, it is possible in the worst case scenario that a bug in the software may inexplicably destroy all your downloaded archives one day without warning.
+Destructive behavior is always a possibility with alpha software. Please do NOT rely on this application for anything critical. While not likely, it is possible in the worst case scenario that a bug in the software may inexplicably destroy all your downloaded archives one day without warning.
 
 Bugs and suggestions
 --------------------
